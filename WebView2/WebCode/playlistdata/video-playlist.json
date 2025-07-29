@@ -1,0 +1,10 @@
+{
+  "Videos": [
+    {
+      "Title": "SimpliPlay",
+      "Subtitle": "Welcome!",
+      "DisplayType": "fullhd",
+      "Url": "https://simpliplay.netlify.app/hero.mp4"
+    }
+  ]
+}
