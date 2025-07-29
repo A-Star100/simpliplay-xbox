@@ -1,352 +1,315 @@
-﻿<!-- Copyright (c) Microsoft Corporation.
-     Licensed under the MIT License. -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset=utf-8>
-    <title>Web-based Video Player Sample</title>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>SimpliPlay for Xbox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
-    <!-- This library allows an Xbox controller or the arrow keys to navigate the UI.
-         Source: https://github.com/Microsoft/TVHelpers -->
     <script src="libs/directionalnavigation-1.0.0.0.js"></script>
-    <!-- This script aids in calling Windows APIs to query or set the monitor's display mode. -->
     <script src="uwpdisplaymode.js"></script>
-    <script>
-        var videoPlaylist;
-        var mediaElement;
-        var playPauseBtn;
-        var resetBtn;
-        var subtitlesBtn;
-        var currentVideoIndex = 0;
-        var videoIsChanging = false;
+    <script src="hls.js"></script>
+    <script src="dash.js"></script>
+</head>
+<body>
 
-        // In this sample, the native code passes the device type to the webview as a query string
-        // parameter. See the MainPage's InitializeWebView() method for details.
-        const urlParams = new URLSearchParams(window.location.search);
-        const deviceType = urlParams.get('deviceType');
+<video id="MediaElement" preload="metadata" onplay="onPlayStateChanged()" onpause="onPlayStateChanged()" ontimeupdate="onProgressChanged()" onended="onVideoEnded()" poster="poster.png" disableremoteplayback="">
+    <source id="VideoSource" src="https://mediaplatstorage1.blob.core.windows.net/windows-universal-samples-media/sintel_trailer-480p.mp4" type="video/mp4">
+</video>
 
-        document.addEventListener("DOMContentLoaded", async function () {
-            mediaElement = document.getElementById("MediaElement");
-            playPauseBtn = document.getElementById("PlayPauseBtn");
-            resetBtn = document.getElementById("ResetBtn");
-            subtitlesBtn = document.getElementById("ToggleSubtitlesBtn");
+<div id="ErrorMessage" hidden="true">Your television does not support the selected video.</div>
 
-            // Fetch the list of videos from the json file.
-            // Note that in this sample each video in the json file actually points to the same URL.
-            // This is for demonstration purposes only, to show how you might handle playback of
-            // different types of content.
-            const response = await fetch('./playlistdata/video-playlist.json');
-            videoPlaylist = await response.json();
+<div id="MediaChrome">
+    <div class="MediaDecorator" id="TopDecorator">
+        <div id="Title"></div>
+    </div>
+    <div class="MediaDecorator" id="BottomDecorator">
+        <progress id="ProgressBar" min="0" max="100" value="0">0%</progress>
+        <div id="MediaControls">
+            <button id="PrevBtn" aria-label="Previous" onclick="previousVideo()" style="display:none;">⏮</button>
+            <button id="PlayPauseBtn" aria-label="Play" onclick="togglePlayPause()">▶</button>
+            <button id="ResetBtn" aria-label="Stop" onclick="resetPlayback()">⏹</button>
+            <button id="NextBtn" aria-label="Next" onclick="nextVideo()" style="display:none;">⏭</button>
+            <span id="Volume">100</span>
+            <button id="ToggleMuteBtn" aria-label="Mute" onclick="toggleMute()">🔇</button>
+            <button id="VolumeUpBtn" aria-label="Volume Up" onclick="addVolume(0.1)">➕</button>
+            <button id="VolumeDownBtn" aria-label="Volume Down" onclick="addVolume(-0.1)">➖</button>
+            <span>|</span>
+            <button id="ToggleSubtitlesBtn" aria-label="Subtitles" onclick="toggleSubtitles()" style="display:none;">❌</button>
+            <button id="OpenStore" aria-label="Choose Media" onclick="openStore()">📁</button>
+        </div>
+    </div>
+</div>
 
-            // Set a blank poster image so the default poster doesn't show
-            mediaElement.poster = "poster.png";
+<div id="Dialog" style="display: none;">
+    <h2>Select Video Source</h2>
+    <button onclick="chooseFile()">Choose File</button>
+    <input type="file" id="fileInput" style="display:none;" accept="video/*,audio/*">
+    <button onclick="enterURL()">Enter URL</button>
+    <button id="GoBackBtn" onclick="goBack()" style="display: none;">Go Back</button>
+</div>
 
-            // Don't show streaming button
-            mediaElement.disableRemotePlayback = true;
+<script>
+    let hls = null;
+    let dashPlayer = null;
+    let videoPlaylist;
+    let currentObjectUrl = null;
 
-            // Update the UI to show the first video
-            await updateVideoAsync();
+    const mediaElement = document.getElementById("MediaElement");
+    const playPauseBtn = document.getElementById("PlayPauseBtn");
+    const resetBtn = document.getElementById("ResetBtn");
+    const subtitlesBtn = document.getElementById("ToggleSubtitlesBtn");
+    const dialog = document.getElementById("Dialog");
+    const goBackBtn = document.getElementById("GoBackBtn");
+    let currentVideoIndex = 0;
+    let videoIsChanging = false;
 
-            playPauseBtn.focus();
-            updateVolumeText();
-            updateSubtitlesText();
+    function initializePlayer(url) {
+        cleanupPlayer();
 
-            console.log("Media player is ready");
-        });
-
-        document.addEventListener("keydown", onKeyDown);
-
-        // Shows or hides the media name and controls
-        function setMediaControlsVisibility(shouldShow) {
-            let mediaChrome = document.getElementById("MediaChrome");
-            if (mediaChrome.hidden != !shouldShow) {
-                mediaChrome.hidden = !shouldShow;
-                if (shouldShow) {
-                    playPauseBtn.focus();
-                }
+        if (url.endsWith('.m3u8') || url.endsWith('.m3u')) {
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(mediaElement);
+            } else if (mediaElement.canPlayType('application/vnd.apple.mpegurl')) {
+                mediaElement.src = url;
             }
+        } else if (url.endsWith('.mpd') && dashjs) {
+            dashPlayer = dashjs.MediaPlayer().create();
+            dashPlayer.initialize(mediaElement, url, true);
+        } else {
+            mediaElement.src = url;
         }
+    }
 
-        // Shows or hides the error message, disabling playback buttons when in an error state
-        function setErrorState(isError) {
-            let errorElement = document.getElementById("ErrorMessage");
-            mediaElement.hidden = isError;
-            errorElement.hidden = !isError;
-            playPauseBtn.disabled = isError;
-            resetBtn.disabled = isError;
+    function cleanupPlayer() {
+        if (hls) {
+            hls.destroy();
+            hls = null;
         }
-
-        // Sends a JSON message to the native wrapper code to notify it of state changes.
-        function notifyNativeWrapper(message, args = {}) {
-            let payload = {
-                "Message": message,
-                "Args": args
-            };
-            window.chrome.webview.postMessage(JSON.stringify(payload));
+        if (dashPlayer) {
+            dashPlayer.reset();
+            dashPlayer = null;
         }
+        mediaElement.pause();
+        mediaElement.removeAttribute('src');
+        mediaElement.load();
+    }
 
-        // Calls into WinRT APIs to set the display mode of the currently attached HDMI device.
-        // Returns true if the desired display mode could be set, false otherwise.
-        // In reality, each video in playlist-1.json points to the same URL, and it does not
-        // need any special modes at all. But this demonstrates how you might update the dislay
-        // mode if you had content which did require it.
-        async function setDisplayModeAsync(displayType) {
-            if (displayType === "dolbyVision4k") {
-                return await uwpDisplayMode.switchTVModeTo4KDVAsync();
-            } else if (displayType === "hdr4k") {
-                return await uwpDisplayMode.switchTVModeTo4KHDRAsync();
-            } else if (displayType === "sdr4k") {
-                return await uwpDisplayMode.switchTVModeTo4KSDRAsync();
-            } else if (displayType === "50hz") {
-                return await uwpDisplayMode.switchTVModeTo50HzAsync();
-            } else if (displayType === "fullhd") {
-                // Any display mode should work fine, make no changes
-                return true;
-            } else {
-                console.error(`Unrecognized display type: ${displayType}`);
-                return false;
-            }
+    document.getElementById("MediaElement").addEventListener('loadstart', function () {
+        if (this.src) {
+            initializePlayer(this.src);
         }
+    });
 
-        // Update the display mode to match whatever the currently selected video needs.
-        // Show the video if successful, or an error if failed.
-        // This function can be called from the native code when the HDMI device changes.
-        async function updateDisplayModeAsync() {
-            let currentVideo = videoPlaylist.Videos[currentVideoIndex];
-            setErrorState(!await setDisplayModeAsync(currentVideo.DisplayType));
+    function enterURL() {
+        const url = prompt("Enter Video URL:");
+        if (url) {
+            mediaElement.src = url;
         }
+    }
 
-        // Changes the video currently being shown in the UI to whichever one is pointed to by
-        // currentVideoIndex. The list of video data is found in playlistdata/playlist-1.json.
-        async function updateVideoAsync() {
-            try {
-                // This flag is used to disable the next/previous buttons temporarily
-                videoIsChanging = true;
+    async function setDisplayModeAsync(displayType) {
+        try {
+            if (displayType === "dolbyVision4k") return await uwpDisplayMode.switchTVModeTo4KDVAsync();
+            if (displayType === "hdr4k") return await uwpDisplayMode.switchTVModeTo4KHDRAsync();
+            if (displayType === "sdr4k") return await uwpDisplayMode.switchTVModeTo4KSDRAsync();
+            if (displayType === "50hz") return await uwpDisplayMode.switchTVModeTo50HzAsync();
+            if (displayType === "fullhd") return true;
+            console.error("Unrecognized display type:", displayType);
+            return false;
+        } catch (e) {
+            console.error("Display mode error:", e);
+            return false;
+        }
+    }
 
-                // Clear the current video's text tracks
-                let tracks = mediaElement.querySelectorAll("track");
-                for (let i = 0; i < tracks.length; i++) {
-                    mediaElement.removeChild(tracks[i]);
-                }
+    async function updateDisplayModeAsync() {
+        const video = videoPlaylist.Videos[currentVideoIndex];
+        const success = await setDisplayModeAsync(video.DisplayType);
+        setErrorState(!success);
+    }
 
-                // Update the UI to show the new video
-                resetPlayback();
-                let newVideo = videoPlaylist.Videos[currentVideoIndex];
-                let titleElement = document.getElementById("Title");
-                titleElement.innerText = `${newVideo.Title} (${newVideo.Subtitle})`;
-                mediaElement.src = newVideo.Url;
+    async function updateVideoAsync() {
+        try {
+            videoIsChanging = true;
+            resetPlayback();
 
-                // Create a new text track
-                let track = document.createElement("track");
+            Array.from(mediaElement.querySelectorAll("track")).forEach(t => t.remove());
+
+            const video = videoPlaylist.Videos[currentVideoIndex];
+            document.getElementById("Title").innerText = `${video.Title} (${video.Subtitle})`;
+
+            mediaElement.src = video.Url;
+
+            if (video.TextTrack) {
+                const track = document.createElement("track");
                 track.label = "English";
                 track.kind = "subtitles";
                 track.srclang = "en";
-                track.src = newVideo.TextTrack;
+                track.src = video.TextTrack;
                 mediaElement.appendChild(track);
-
-                updatePlayPauseBtnText();
-
-                // Update the display mode. Show the video if successful, or an error if failed.
-                await updateDisplayModeAsync();
-
-                // Inform the native code of the change.
-                notifyNativeWrapper("VideoUpdate", {
-                    "Title": newVideo.Title,
-                    "Subtitle": newVideo.Subtitle
-                });
-            } finally {
-                videoIsChanging = false;
             }
-        }
 
-        // Event handlers
-        // ----------------------
-        function onPlayStateChanged() {
-            setMediaControlsVisibility(mediaElement.paused || mediaElement.ended);
             updatePlayPauseBtnText();
-            updateResetBtnText();
+            await updateDisplayModeAsync();
+        } finally {
+            videoIsChanging = false;
+        }
+    }
 
-            // Let the native code know that playback has changed so it can update the system.
-            if (mediaElement.ended) {
-                notifyNativeWrapper("PlaybackEnded");
-            } else if (mediaElement.paused) {
-                notifyNativeWrapper("PlaybackPaused");
-            } else {
-                notifyNativeWrapper("PlaybackStarted");
-            }
-        }
-        function onProgressChanged() {
-            let percent = 0;
-            if (mediaElement.duration > 0) {
-                percent = Math.floor((100 / mediaElement.duration) * mediaElement.currentTime);
-            }
+    function setErrorState(isError) {
+        document.getElementById("ErrorMessage").hidden = !isError;
+        mediaElement.hidden = isError;
+        playPauseBtn.disabled = isError;
+        resetBtn.disabled = isError;
+    }
 
-            let progressBar = document.getElementById("ProgressBar");
-            progressBar.value = percent;
-            progressBar.innerText = `${percent}%`;
+    function setMediaControlsVisibility(show) {
+        const chrome = document.getElementById("MediaChrome");
+        chrome.hidden = !show;
+        if (show) playPauseBtn.focus();
+    }
 
-            // Inform the native code of the change in position as well.
-            if (mediaElement.duration > 0) {
-                notifyNativeWrapper("TimeUpdate", {
-                    "CurrentTime": mediaElement.currentTime,
-                    "Duration": mediaElement.duration
-                });
-            }
-        }
-        function onKeyDown(e) {
-            setMediaControlsVisibility(true);
-        }
+    function onPlayStateChanged() {
+        setMediaControlsVisibility(mediaElement.paused || mediaElement.ended);
+        updatePlayPauseBtnText();
+        updateResetBtnText();
+    }
 
-        // These functions are called when the user presses media control buttons
-        // ----------------------
-        function play() {
-            mediaElement.play();
-        }
-        function pause() {
-            mediaElement.pause();
-        }
-        function togglePlayPause() {
-            if (mediaElement.paused || mediaElement.ended) {
-                play();
-            } else {
-                pause();
-            }
-        }
-        function resetPlayback() {
-            mediaElement.pause();
-            mediaElement.currentTime = 0;
-            playPauseBtn.focus();
-            updateResetBtnText();
-        }
-        function addVolume(amount) {
-            // Clamp between 0 and 1
-            let newVolume = Math.max(0, Math.min(mediaElement.volume + amount, 1));
-            mediaElement.volume = parseFloat(newVolume).toFixed(1);
-            updateVolumeText();
-        }
-        function toggleMute() {
-            mediaElement.muted = !mediaElement.muted;
-            updateMuteBtnText();
-            updateVolumeText();
-        }
-        function previousVideo() {
-            // Prevent multiple simultaneous video switches
-            if (!videoIsChanging) {
-                currentVideoIndex--;
-                // Wrap around
-                if (currentVideoIndex < 0) {
-                    currentVideoIndex = videoPlaylist.Videos.length - 1;
-                }
+    function onProgressChanged() {
+        const progressBar = document.getElementById("ProgressBar");
+        const percent = mediaElement.duration > 0
+            ? Math.floor((100 / mediaElement.duration) * mediaElement.currentTime)
+            : 0;
+        progressBar.value = percent;
+        progressBar.innerText = `${percent}%`;
+    }
 
-                let newVideo = videoPlaylist.Videos[currentVideoIndex];
-                if (newVideo.DisplayType.includes("4k") && deviceType.includes("Xbox One")) {
-                    // Xbox One does not support 4k video playback, so skip this one
-                    previousVideo();
-                    return;
-                }
+    function play() {
+        mediaElement.play();
+    }
 
-                updateVideoAsync();
-            }
+    function pause() {
+        mediaElement.pause();
+    }
+
+    function togglePlayPause() {
+        mediaElement.paused || mediaElement.ended ? play() : pause();
+    }
+
+    function resetPlayback() {
+        mediaElement.pause();
+        mediaElement.currentTime = 0;
+        playPauseBtn.focus();
+        updateResetBtnText();
+    }
+
+    function previousVideo() {
+        if (!videoIsChanging) {
+            currentVideoIndex = (currentVideoIndex - 1 + videoPlaylist.Videos.length) % videoPlaylist.Videos.length;
+            updateVideoAsync();
         }
-        function nextVideo() {
-            // Prevent multiple simultaneous video switches
-            if (!videoIsChanging) {
-                currentVideoIndex++;
-                // Wrap around
-                if (currentVideoIndex > (videoPlaylist.Videos.length - 1)) {
-                    currentVideoIndex = 0;
-                }
+    }
 
-                let newVideo = videoPlaylist.Videos[currentVideoIndex];
-                if (newVideo.DisplayType.includes("4k") && deviceType.includes("Xbox One")) {
-                    // Xbox One does not support 4k video playback, so skip this one
-                    nextVideo();
-                    return;
-                }
-
-                updateVideoAsync();
-            }
+    function nextVideo() {
+        if (!videoIsChanging) {
+            currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.Videos.length;
+            updateVideoAsync();
         }
-        function toggleSubtitles() {
-            let subtitles = mediaElement.textTracks[0];
-            subtitles.mode = subtitles.mode === "showing" ? "hidden" : "showing";
+    }
+
+    function addVolume(amount) {
+        const newVolume = Math.min(1, Math.max(0, mediaElement.volume + amount));
+        mediaElement.volume = parseFloat(newVolume.toFixed(1));
+        updateVolumeText();
+    }
+
+    function toggleMute() {
+        mediaElement.muted = !mediaElement.muted;
+        updateMuteBtnText();
+        updateVolumeText();
+    }
+
+    function toggleSubtitles() {
+        const track = mediaElement.textTracks[0];
+        if (track) {
+            track.mode = track.mode === "showing" ? "hidden" : "showing";
             updateSubtitlesText();
         }
-        function openStore() {
-            // This is just a sample store page to demonstrate protocol launching.
-            // Note that if you want to request ratings for your app, you should use the
-            // StoreContext.RequestRateAndReviewAppAsync native API instead of launching the store
-            // page directly. See:
-            // https://learn.microsoft.com/en-us/windows/uwp/monetize/request-ratings-and-reviews
-            window.location.href = "ms-windows-store://pdp/?ProductId=9MV0B5HZVK9Z";
+    }
+
+    function updateVolumeText() {
+        document.getElementById("Volume").innerText = mediaElement.volume * 100;
+    }
+
+    function updatePlayPauseBtnText() {
+        playPauseBtn.innerText = mediaElement.paused ? "▶" : "❚❚";
+    }
+
+    function updateResetBtnText() {
+        resetBtn.innerText = mediaElement.currentTime > 0 ? "⏹" : "▶";
+    }
+
+    function updateMuteBtnText() {
+        document.getElementById("ToggleMuteBtn").innerText = mediaElement.muted ? "🔇" : "🔊";
+    }
+
+    function updateSubtitlesText() {
+        subtitlesBtn.innerText = mediaElement.textTracks[0]?.mode === "showing" ? "💬" : "❌";
+    }
+
+    function openStore() {
+        dialog.style.display = "block";
+        goBackBtn.style.display = "inline";
+    }
+
+    function goBack() {
+        dialog.style.display = "none";
+        goBackBtn.style.display = "none";
+    }
+
+    function chooseFile() {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.click();
+        fileInput.onchange = function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentObjectUrl = URL.createObjectURL(file);
+                mediaElement.src = currentObjectUrl;
+                mediaElement.play();
+                dialog.style.display = "none";
+                goBackBtn.style.display = "none";
+            }
+        };
+    }
+
+    function revokeObjectUrl() {
+        if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+            currentObjectUrl = null;
+        }
+    }
+
+    document.addEventListener("keydown", () => setMediaControlsVisibility(true));
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        mediaElement.poster = "poster.png";
+        mediaElement.disableRemotePlayback = true;
+
+        try {
+            const response = await fetch('./playlistdata/video-playlist.json');
+            videoPlaylist = await response.json();
+            await updateVideoAsync();
+        } catch (e) {
+            console.error("Failed to load playlist:", e);
         }
 
-        // Functions to update the text of controls to match the video state
-        // ----------------------
-        function updateResetBtnText() {
-            resetBtn.innerText = mediaElement.ended ? "" : "⏹";
-            resetBtn.title = mediaElement.ended ? "Restart" : "Stop";
-        }
-        function updatePlayPauseBtnText() {
-            playPauseBtn.innerText = (mediaElement.paused || mediaElement.ended) ? "▶" : "⏸";
-            playPauseBtn.title = (mediaElement.paused || mediaElement.ended) ? "Play" : "Pause";
-        }
-        function updateMuteBtnText() {
-            let muteBtn = document.getElementById("ToggleMuteBtn");
-            muteBtn.innerText = mediaElement.muted ? "" : "";
-            muteBtn.title = mediaElement.muted ? "Unmute" : "Mute";
-        }
-        function updateVolumeText() {
-            let volume = document.getElementById("Volume");
-            if (mediaElement.muted) {
-                volume.innerText = 0;
-            } else {
-                volume.innerText = parseFloat(mediaElement.volume * 100).toFixed(0);
-            }
-        }
-        function updateSubtitlesText() {
-            if (mediaElement.textTracks[0].mode === "showing") {
-                subtitlesBtn.classList.remove("Off");
-                subtitlesBtn.title = "Hide Subtitles";
-            } else {
-                subtitlesBtn.classList.add("Off");
-                subtitlesBtn.title = "Show Subtitles";
-            }
-        }
-    </script>
-</head>
-<body>
-    <!-- For simplicity's sake, this sample uses a raw video tag. You could also use a third-party video library, such as dash.js, if you prefer. -->
-    <video id="MediaElement" preload="metadata" onplay="onPlayStateChanged()" onpause="onPlayStateChanged()" ontimeupdate="onProgressChanged()">
-        <source src="https://mediaplatstorage1.blob.core.windows.net/windows-universal-samples-media/sintel_trailer-480p.mp4" type="video/mp4">
-    </video>
-    <div id="ErrorMessage" hidden="true">Your television does not support the selected video.</div>
-    <div id="MediaChrome">
-        <div class="MediaDecorator" id="TopDecorator">
-            <div id="Title" />
-        </div>
-        <div class="MediaDecorator" id="BottomDecorator">
-            <progress id="ProgressBar" min="0" max="100" value="0">0%</progress>
-            <div id="MediaControls">
-                <div id="LeftControls">
-                    <button class="MediaButton" id="PrevBtn" title="Previous" onclick="previousVideo()"></button>
-                    <button class="MediaButton" id="PlayPauseBtn" title="Play" onclick="togglePlayPause()">▶</button>
-                    <button class="MediaButton" id="ResetBtn" title="Stop" onclick="resetPlayback()">⏹</button>
-                    <button class="MediaButton" id="NextBtn" title="Next" onclick="nextVideo()"></button>
-                </div>
-                <div id="RightControls">
-                    <span id="Volume">0</span>
-                    <button class="MediaButton" id="ToggleMuteBtn" title="Mute" onclick="toggleMute()"></button>
-                    <button class="MediaButton" id="VolumeUpBtn" title="Volume Up" onclick="addVolume(0.1)">➕</button>
-                    <button class="MediaButton" id="VolumeDownBtn" title="Volume Down" onclick="addVolume(-0.1)">➖</button>
-                    <span>|</span>
-                    <button class="MediaButton" id="ToggleSubtitlesBtn" title="Show Subtitles" onclick="toggleSubtitles()"></button>
-                    <button class="MediaButton" id="OpenStore" title="Open Store" onclick="openStore()">🛒</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+        playPauseBtn.focus();
+        updateVolumeText();
+        updateSubtitlesText();
+        console.log("Media player is ready");
+    });
+</script>
+
+
+
+</body></html>
