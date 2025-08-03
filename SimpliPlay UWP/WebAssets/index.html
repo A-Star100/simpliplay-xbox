@@ -33,64 +33,63 @@
   <div class="dialog-overlay" id="dialogOverlay">
     <div class="dialog">
       <p>Select how you want to load media:</p>
-      <button id="chooseFileBtn">Choose a File</button>
-      <button id="enterUrlBtn">Enter a URL</button>
-      <button id="hideDialogBtn">Go back</button>
-      <input type="file" id="fileInput" accept="video/*,audio/*">
+<button id="chooseFileBtn" tabindex="0">Choose a File</button>
+<button id="enterUrlBtn" tabindex="0">Enter a URL</button>
+<button id="hideDialogBtn" tabindex="0">Go back</button>
+<input type="file" id="fileInput" accept="video/*,audio/*">
     </div>
   </div>
 
   <div class="dialog-overlay" id="urlDialogOverlay">
     <div class="dialog">
       <p>Enter media URL:</p>
-      <input type="url" id="urlInput" placeholder="Enter media URL here">
-      <button id="submitUrlBtn">Submit</button>
-      <button id="cancelUrlBtn">Cancel</button>
+<input type="url" id="urlInput" placeholder="Enter media URL here" tabindex="0">
+<button id="submitUrlBtn" tabindex="0">Submit</button>
+<button id="cancelUrlBtn" tabindex="0">Cancel</button>
     </div>
   </div>
 
   <div class="subtitles-overlay" id="subtitlesOverlay">
     <div class="subtitles-dialog">
       <p>Enter subtitles URL:</p>
-      <input type="url" id="subtitlesInput" placeholder="Enter subtitles URL here">
-      <button id="submitSubtitlesBtn">Submit</button>
-      <button id="cancelSubtitlesBtn">Cancel</button>
+<input type="url" id="subtitlesInput" placeholder="Enter subtitles URL here" tabindex="0">
+<button id="submitSubtitlesBtn" tabindex="0">Submit</button>
+<button id="cancelSubtitlesBtn" tabindex="0">Cancel</button>
     </div>
   </div>
 
   <video id="mediaPlayer" autoplay controls></video>
 
   <div id="customControls">
-    <button id="playPauseBtn">Pause</button>
-    <input type="range" id="seekBar" min="0" value="0" step="0.1">
-    <span id="timeDisplay">00:00 / 00:00</span>
-    <button id="volumeBtn">🔊</button>
-    <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1">
-    <button id="fullscreenBtn">⛶</button>
-    <button id="ccBtn">Add Subtitles</button> <!-- CC button -->
+<button id="playPauseBtn" tabindex="0">Pause</button>
+<input type="range" id="seekBar" min="0" value="0" step="0.1" tabindex="0">
+<span id="timeDisplay">00:00 / 00:00</span>
+<button id="volumeBtn" tabindex="0">🔊</button>
+<input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1" tabindex="0">
+<button id="fullscreenBtn" tabindex="0">⛶</button>
+<button id="ccBtn" tabindex="0">Add Subtitles</button>
   </div>
 
   <div class="gap-box"></div>
-  <button id="showDialogBtn">Play more media</button>
-
-  <!-- Settings gear button -->
-  <button id="settingsBtn">⚙️</button>
+<button id="showDialogBtn" tabindex="0">Play more media</button>
+<button id="settingsBtn" tabindex="0">⚙️</button>
 
   <!-- Settings panel -->
   <div class="dialog-overlay" id="settingsDialogOverlay">
   <div id="settingsPanel">
     <label for="autoplayCheckbox">Autoplay:</label>
-    <input type="checkbox" id="autoplayCheckbox" checked><br>
+<input type="checkbox" id="autoplayCheckbox" checked tabindex="0"><br>
     <label for="loopCheckbox">Loop:</label>
-    <input type="checkbox" id="loopCheckbox"><br>
+<input type="checkbox" id="loopCheckbox" tabindex="0"><br>
     <label for="controlsCheckbox">Controls:</label>
-    <input type="checkbox" id="controlsCheckbox" checked><br>
+<input type="checkbox" id="controlsCheckbox" checked tabindex="0"><br>
     <label for="controlsCheckbox">Vivid Colors:</label>
-    <input type="checkbox" id="colorsCheckbox"><br>
+<input type="checkbox" id="colorsCheckbox" tabindex="0"><br>
     <p class="settings-info"><em>Settings apply for this session only.</em></p>
-    <button id="saveSettingsBtn">Save Settings</button>
+<button id="saveSettingsBtn" tabindex="0">Save Settings</button>
   </div>
   </div>
 </body>
 
 </html>
+
