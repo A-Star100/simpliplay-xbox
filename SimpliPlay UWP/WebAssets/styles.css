@@ -11,6 +11,11 @@ h1 {
   font-family: "Inter-header", Arial, sans-serif !important;
 }
 
+[tabindex="0"]:focus {
+  outline: 2px solid #00f;
+  box-shadow: 0 0 5px #00f;
+}
+
 * {
   font-family: "Inter", Arial, sans-serif;
 }
@@ -200,3 +205,4 @@ h1 {
       z-index: 10000;
       text-align: center;
     }
+
