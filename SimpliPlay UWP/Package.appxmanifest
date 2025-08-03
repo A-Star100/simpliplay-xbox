@@ -50,6 +50,8 @@
   <uap:Capability Name="picturesLibrary" />
   <uap:Capability Name="documentsLibrary" />
   <rescap:Capability Name="hevcVideo" />
+  <rescap:Capability Name="broadFileSystemAccess" />
   </Capabilities>
 
 </Package>
+
