@@ -45,5 +45,11 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+  <uap:Capability Name="musicLibrary" />
+  <uap:Capability Name="videosLibrary" />
+  <uap:Capability Name="picturesLibrary" />
+  <uap:Capability Name="documentsLibrary" />
+  <rescap:Capability Name="hevcVideo" />
   </Capabilities>
+
 </Package>
