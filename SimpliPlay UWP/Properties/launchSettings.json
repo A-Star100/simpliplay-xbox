@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "SimpliPlay_UWP": {
+      "commandName": "MsixPackage"
+    }
+  }
+}
