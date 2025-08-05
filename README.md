@@ -1,7 +1,7 @@
 # simpliplay-xbox
 UWP app for Xbox, built on a Windows VM. This version does not properly support HLS and MPEG-DASH as of now, and is mostly stale other than necessary updates that prevent the app from breaking.
 
-## How to sign the app
+## How to sign the app (required or otherwise it won't install)
 ### 1. Create a Self-Signed Certificate
 
 Open **PowerShell as Administrator** and run:
