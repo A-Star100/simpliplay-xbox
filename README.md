@@ -18,8 +18,8 @@ Run this in PowerShell to export the public certificate to your Desktop:
 
 ```powershell
 Export-Certificate -Cert $cert -FilePath "$env:USERPROFILE\Desktop\TestMSIXCert.cer"
-You will use this .cer file to install/trust the certificate on the test device.
 ```
+You will use this .cer file to install/trust the certificate on the test device.
 
 ### 3. Export the Private Key Certificate (.pfx) for Signing
 Open `certmgr.msc` (Certificates Manager).
