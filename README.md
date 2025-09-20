@@ -2,7 +2,9 @@
 UWP app for Xbox, built on a Windows VM. This version does not properly support HLS and MPEG-DASH as of now, and is mostly stale other than necessary updates that prevent the app from breaking.
 
 ## How to sign the app (required or otherwise it won't install even in Dev Mode)
-*If you don't want to sign it, you can use an unpacked build*.
+
+# Hey man! SIGNED builds are already in Releases now! This guide is only for those who want to sign it themselves! You can upload SIGNED builds in Dev Mode from any OS and they should work!
+
 ### 1. Create a Self-Signed Certificate
 
 Open **PowerShell as Administrator** and run:
