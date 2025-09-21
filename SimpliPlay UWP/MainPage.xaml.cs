@@ -8,6 +8,7 @@ namespace SimpliPlay
         public MainPage()
         {
             this.InitializeComponent();
+            MyWebView.NavigationFailed += MyWebView_NavigationFailed;
             LoadLocalHtml();
         }
 
@@ -20,6 +21,18 @@ namespace SimpliPlay
 
             // Load the HTML file into the WebView
             MyWebView.Navigate(uri);
+        }
+
+        private async void MyWebView_NavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "Navigation Failed",
+                Content = $"Failed to load content. Error: {e.WebErrorStatus}",
+                CloseButtonText = "OK"
+            };
+
+            await dialog.ShowAsync();
         }
     }
 }
