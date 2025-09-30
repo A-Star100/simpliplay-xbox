@@ -4,7 +4,7 @@ UWP app for Xbox, built on a Windows VM. This version does not properly support 
 > [!WARNING]
 > SimpliPlay is no longer supported on Xbox. Long story short, the UWP app works, but I currently don't have the resources to compile it. Even my VM just can't do it. It's much too impractical. Of course, if you can manage to compile the source code and get a working MSIX, I would love to hear from you. You can email me (my email is on my GitHub profile's main page).
 
-# OLD instructions (optional because the app is signed now)
+## OLD instructions (optional because the app is signed now)
 ## How to sign the app (required or otherwise it won't install even in Dev Mode)
 
 ### 1. Create a Self-Signed Certificate
