@@ -94,13 +94,14 @@ submitSubtitlesBtn.addEventListener('click', () => {
 submitUrlBtn.addEventListener('click', () => {
   let url = urlInput.value;
 
-  // Check if URL is a valid URL and doesn't contain "http" or "https"
+  // Check if URL is valid
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
     url = 'http://' + url;  // You can also choose 'https://' if preferred
   }
   
 
+// uwp webview won't support hls or dash, just leaving here
+// in case this gets updated to use webview2
   if (url) {
     clearSubtitles();
     if (hls !== null) {
