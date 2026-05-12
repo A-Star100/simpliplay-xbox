@@ -9,7 +9,7 @@
   <Identity
     Name="fb5de0c8-508b-4a30-8cea-7fcd7e832e56"
     Publisher="CN=Anirudh"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="fb5de0c8-508b-4a30-8cea-7fcd7e832e56" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -45,10 +45,6 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-    <uap:Capability Name="musicLibrary" />
-    <uap:Capability Name="videosLibrary" />
-    <uap:Capability Name="picturesLibrary" />
-    <!-- Removed documentsLibrary and broadFileSystemAccess as they are not supported on Xbox -->
   </Capabilities>
 
 </Package>
