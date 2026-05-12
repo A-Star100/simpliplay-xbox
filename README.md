@@ -2,7 +2,8 @@
 UWP app for Xbox, built on a Windows VM. This version does not properly support HLS and MPEG-DASH as of now, and is mostly stale other than necessary updates that prevent the app from breaking.
 
 > [!WARNING]
-> SimpliPlay is no longer supported on Xbox. Long story short, the UWP app works, but will need to be compiled from source in VS Studio.
+> SimpliPlay is no longer supported on Xbox. It is available on the Microsoft Store, but will not receive any more updates than needed. Source will be updated accordingly
+> I found a source build in archives, and used that for submission. And it worked.
 
 ## OLD instructions (optional because the app is signed now)
 ## How to sign the app (required or otherwise it won't install even in Dev Mode)
