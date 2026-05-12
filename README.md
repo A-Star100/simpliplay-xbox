@@ -5,6 +5,18 @@ UWP app for Xbox, built on a Windows VM. This version does not properly support 
 > SimpliPlay is no longer supported on Xbox. It is available on the Microsoft Store, but will not receive any more updates than needed. Source will be updated accordingly
 > I found a source build in archives, and used that for submission. And it worked.
 
+## Use as a template
+The port can be used as a template (the license is neat) for a basic WebView1 app.
+If you don't have VS Studio with the UWP toolkit installed, you can just download a production APPX (the latest one to avoid any weird issues)
+then rename its extension to a `.zip` and extract it.
+From there in the "WebAssets" folder, put any web code you have in (HTML, CSS, etc).
+Then you can compress the folder as a ZIP and rename it to `.appx`.
+Note that the Microsoft Partner Center **REQUIRES PACKAGES TO BE SELF-SIGNED**, even
+if it's just for an upload before certification or something like that.
+If you lack a Windows machine at all, you can use GitHub Actions or some other CI
+to take your APPX and sign it and spit out the new version. Even if your signer says "Unknown Error"
+still try uploading it (it worked for me).
+
 ## OLD instructions (optional because the app is signed now)
 ## How to sign the app (required or otherwise it won't install even in Dev Mode)
 
