@@ -19,12 +19,8 @@
 ">
 
   <script src="focus.js"></script>
-
-<link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="stylesheet" href="styles.css">
-  <script src="lib/dash.js"></script>
-  <script src="lib/hls.js"></script>
-  <script src="lib/directional-navigation-1.0.0.0.js"></script>
+  <script src="lib/directionalnavigation-1.0.0.0.js"></script>
   <script src="lib/redirectconsole-1.0.0.0.js"></script>
   <title>SimpliPlay</title>
 </head>
@@ -35,10 +31,10 @@
   <div class="dialog-overlay" id="dialogOverlay">
     <div class="dialog">
       <p>Select how you want to load media:</p>
-<button id="chooseFileBtn" tabindex="0">Choose a File</button>
+<!-- <button id="chooseFileBtn" tabindex="-1">Choose a File</button> -->
 <button id="enterUrlBtn" tabindex="0">Enter a URL</button>
 <button id="hideDialogBtn" tabindex="0">Go back</button>
-<input type="file" id="fileInput" accept="video/*,audio/*">
+<!-- <input type="file" id="fileInput" accept="video/*,audio/*"> -->
     </div>
   </div>
 
@@ -60,14 +56,14 @@
     </div>
   </div>
 
-  <video id="mediaPlayer" autoplay controls></video>
+  <video id="mediaPlayer" autoplay></video>
 
   <div id="customControls">
 <button id="playPauseBtn" tabindex="0">Pause</button>
-<input type="range" id="seekBar" min="0" value="0" step="0.1" tabindex="0">
+<input type="range" id="seekBar" min="0" value="0" step="1" tabindex="0">
 <span id="timeDisplay">00:00 / 00:00</span>
 <button id="volumeBtn" tabindex="0">🔊</button>
-<input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1" tabindex="0">
+<input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1" tabindex="-1">
 <button id="fullscreenBtn" tabindex="0">⛶</button>
 <button id="ccBtn" tabindex="0">Add Subtitles</button>
   </div>
@@ -83,8 +79,8 @@
 <input type="checkbox" id="autoplayCheckbox" checked tabindex="0"><br>
     <label for="loopCheckbox">Loop:</label>
 <input type="checkbox" id="loopCheckbox" tabindex="0"><br>
-    <label for="controlsCheckbox">Controls:</label>
-<input type="checkbox" id="controlsCheckbox" checked tabindex="0"><br>
+    <!-- <label for="controlsCheckbox">Controls:</label>
+<input type="checkbox" id="controlsCheckbox" checked tabindex="0"><br> -->
     <label for="controlsCheckbox">Vivid Colors:</label>
 <input type="checkbox" id="colorsCheckbox" tabindex="0"><br>
     <p class="settings-info"><em>Settings apply for this session only.</em></p>

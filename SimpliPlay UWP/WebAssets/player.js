@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const dialogOverlay = document.getElementById('dialogOverlay');
-    const chooseFileBtn = document.getElementById('chooseFileBtn');
+    //const chooseFileBtn = document.getElementById('chooseFileBtn');
     const enterUrlBtn = document.getElementById('enterUrlBtn');
-    const fileInput = document.getElementById('fileInput');
+    //const fileInput = document.getElementById('fileInput');
     const mediaPlayer = document.getElementById('mediaPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const seekBar = document.getElementById('seekBar');
@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
-    let hls = null
-    let player = null
+    // let hls = null
+    // let player = null
 
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
@@ -89,62 +89,44 @@ submitSubtitlesBtn.addEventListener('click', () => {
 
     let autoplayEnabled = true;
     let loopEnabled = false;
+    var supportsHls = mediaPlayer.canPlayType('application/vnd.apple.mpegurl');
 
     // Handle submit URL button in custom dialog
 submitUrlBtn.addEventListener('click', () => {
   let url = urlInput.value;
 
-  // Check if URL is valid
+  // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
+    // Assuming it's a URL and needs the protocol added
     url = 'http://' + url;  // You can also choose 'https://' if preferred
   }
   
 
-// uwp webview won't support hls or dash, just leaving here
-// in case this gets updated to use webview2
   if (url) {
     clearSubtitles();
-    if (hls !== null) {
-      hls.destroy()
-      hls = null
-    }
-    if (player !== null) {
-      player.reset()
-      player = null
-    }
+    // if (hls !== null) {
+    //   hls.destroy()
+    //   hls = null
+    // }
+    // if (player !== null) {
+    //   player.reset()
+    //   player = null
+    // }
     if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
-      // HLS stream
-      if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video player
-        hls = new Hls();
+     if (supportsHls === "maybe" || supportsHls === "probably") {
+        mediaPlayer.style.display = 'flex'; 
         mediaPlayer.pause();
-        hls.loadSource(url);
-        hls.attachMedia(mediaPlayer);
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-          if (autoplayCheckbox.checked) {
-            mediaPlayer.play();
-          }
-          urlInput.value = "";
-          customControls.style.display = 'flex';
-        });
-      } else {
-        alert("Your device doesn't support HLS.");
+        mediaPlayer.src = url;
         customControls.style.display = 'flex';
         urlInput.value = "";
+        if (autoplayCheckbox.checked) {
+          mediaPlayer.play();
+        }
       }
     } else if (url.toLowerCase().endsWith('.mpd')) {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
-      mediaPlayer.pause();
-      player = dashjs.MediaPlayer().create();
-      // MPEG-DASH stream
-      player.initialize(mediaPlayer, url, true);
-      customControls.style.display = 'flex';
-      urlInput.value = "";
-      if (autoplayCheckbox.checked) {
-        mediaPlayer.play();
-      }
+      alert("MPEG-DASH is not supported on this device.")
     } else {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.style.display = 'flex'; 
       mediaPlayer.pause();
       mediaPlayer.src = url;
       customControls.style.display = 'flex';
@@ -180,10 +162,10 @@ submitUrlBtn.addEventListener('click', () => {
 
 
 
-    // Handle "Choose a File" button
-    chooseFileBtn.addEventListener('click', () => {
-      fileInput.click();
-    });
+    // // Handle "Choose a File" button
+    // chooseFileBtn.addEventListener('click', () => {
+    //   fileInput.click();
+    // });
 
     mediaPlayer.addEventListener("volumechange", function () {
       if (mediaPlayer.muted) {
@@ -196,41 +178,41 @@ submitUrlBtn.addEventListener('click', () => {
 
 
    
-    let previousObjectURL = null; // Store the last Object URL
+    // let previousObjectURL = null; // Store the last Object URL
 
-    fileInput.addEventListener('change', (event) => {
-      if (hls !== null) {
-        hls.destroy()
-        hls = null
-      }
-      if (player !== null) {
-        player.reset()
-        player = null
-      }
-        const file = event.target.files[0];
-        if (!file) return;
+    // fileInput.addEventListener('change', (event) => {
+    //   // if (hls !== null) {
+    //   //   hls.destroy()
+    //   //   hls = null
+    //   // }
+    //   // if (player !== null) {
+    //   //   player.reset()
+    //   //   player = null
+    //   // }
+    //     const file = event.target.files[0];
+    //     if (!file) return;
     
-        clearSubtitles(); // Remove any previously loaded subtitles
+    //     clearSubtitles(); // Remove any previously loaded subtitles
     
-        // Revoke the previous Object URL if it exists
-        if (previousObjectURL) {
-            URL.revokeObjectURL(previousObjectURL);
-        }
+    //     // Revoke the previous Object URL if it exists
+    //     if (previousObjectURL) {
+    //         URL.revokeObjectURL(previousObjectURL);
+    //     }
     
-        // Create a new Object URL for the selected file
-        const fileURL = URL.createObjectURL(file);
-        mediaPlayer.src = fileURL;
-        mediaPlayer.load();
-        if (autoplayCheckbox.checked) {
-        mediaPlayer.play();
-        }
+    //     // Create a new Object URL for the selected file
+    //     const fileURL = URL.createObjectURL(file);
+    //     mediaPlayer.src = fileURL;
+    //     mediaPlayer.load();
+    //     if (autoplayCheckbox.checked) {
+    //     mediaPlayer.play();
+    //     }
     
-        // Store the new Object URL for future cleanup
-        previousObjectURL = fileURL;
+    //     // Store the new Object URL for future cleanup
+    //     previousObjectURL = fileURL;
     
-        // Hide dialog after selecting a file
-        dialogOverlay.style.display = 'none';
-    });
+    //     // Hide dialog after selecting a file
+    //     dialogOverlay.style.display = 'none';
+    // });
     
 
     // Handle "Enter a URL" button
@@ -329,9 +311,9 @@ subtitlesInput.addEventListener('keydown', (e) => {
       mediaPlayer.autoplay = autoplayEnabled;
       mediaPlayer.loop = loopEnabled;
       
-      const controlsEnabled = document.getElementById('controlsCheckbox').checked;
+      //const controlsEnabled = document.getElementById('controlsCheckbox').checked;
       const colorsEnabled = document.getElementById('colorsCheckbox').checked;
-      mediaPlayer.controls = controlsEnabled;
+      mediaPlayer.controls = false;
       if (colorsEnabled) {
         mediaPlayer.style.filter = "contrast(1.1) saturate(1.15) brightness(1.03)";
       } else {

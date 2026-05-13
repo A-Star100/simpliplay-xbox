@@ -205,4 +205,8 @@ h1 {
       z-index: 10000;
       text-align: center;
     }
+    #settingsPanel input[type="checkbox"] {
+      width: 20px;
+      margin: 10px auto; /* Force them into the exact same vertical track */
+    }
 

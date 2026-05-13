@@ -1,19 +1,41 @@
-      document.addEventListener("keydown", function(e) {
+document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("keydown", function(e) {
+    const focused = document.activeElement;
     if (e.key === "Enter") {
-      const focused = document.activeElement;
-      
       if (focused) {
-        // If focus is on a button, just click it
+        // focus
         if (focused.tagName === "BUTTON") {
-          focused.click();
           e.preventDefault();
+          focused.click()
         }
-        // If focus is on a text input or checkbox, find the highlighted button and click it
-        else if (focused.tagName === "INPUT") {
-          // You can define which button to click here.
-          // For example, the button with id="myButton"
+        // find highlighted btn and focus
+        else {
+          e.preventDefault();
           focused.focus();
+          focused.click();
         }
       }
     }
+    if (focused.type === "range") {
+      //e.preventDefault();
+      focused.focus()
+    }
   });
+const seekSlider = document.getElementById('seekBar');
+const video = document.getElementById('mediaPlayer');
+seekSlider.addEventListener('keydown', (e) => {  
+    // override player.js slide
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.stopPropagation(); // try to stop any moves in focus
+        
+        // seek by ourselves
+        if (e.key === 'ArrowLeft') { 
+            video.currentTime -= 5; 
+        } else { 
+            video.currentTime += 5; 
+        }
+        
+        e.preventDefault(); // try and preventDefault to stop browser
+    }
+});
+});
