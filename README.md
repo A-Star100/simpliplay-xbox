@@ -1,9 +1,10 @@
 # simpliplay-xbox
 UWP app for Xbox, built on a Windows VM. This version does not properly support HLS and MPEG-DASH as of now, and is mostly stale other than necessary updates that prevent the app from breaking.
+
 [Get from Microsoft Store (Xbox only)](https://apps.microsoft.com/detail/9PN7LMPJFRW1)
 
 > [!WARNING]
-> SimpliPlay is no longer supported on Xbox. It is available on the Microsoft Store, but will not receive any more updates than needed. Source will be updated accordingly
+> SimpliPlay is not actively supported on Xbox. It is available on the Microsoft Store, but will probably not receive any more updates than needed for it to function (for example 1.0.9.0 which has a metadata fix for VCLibs so the app doesn't hang and fail to install) Source will be updated accordingly
 > I found a source build in archives, and used that for submission. And it worked.
 
 ## Use as a template
