@@ -97,21 +97,12 @@ submitUrlBtn.addEventListener('click', () => {
 
   // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url;  
   }
   
 
   if (url) {
     clearSubtitles();
-    // if (hls !== null) {
-    //   hls.destroy()
-    //   hls = null
-    // }
-    // if (player !== null) {
-    //   player.reset()
-    //   player = null
-    // }
     if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
      if (supportsHls === "maybe" || supportsHls === "probably") {
         mediaPlayer.style.display = 'flex'; 
@@ -174,45 +165,6 @@ submitUrlBtn.addEventListener('click', () => {
         volumeBtn.textContent = "🔊"
       }
     });
-    
-
-
-   
-    // let previousObjectURL = null; // Store the last Object URL
-
-    // fileInput.addEventListener('change', (event) => {
-    //   // if (hls !== null) {
-    //   //   hls.destroy()
-    //   //   hls = null
-    //   // }
-    //   // if (player !== null) {
-    //   //   player.reset()
-    //   //   player = null
-    //   // }
-    //     const file = event.target.files[0];
-    //     if (!file) return;
-    
-    //     clearSubtitles(); // Remove any previously loaded subtitles
-    
-    //     // Revoke the previous Object URL if it exists
-    //     if (previousObjectURL) {
-    //         URL.revokeObjectURL(previousObjectURL);
-    //     }
-    
-    //     // Create a new Object URL for the selected file
-    //     const fileURL = URL.createObjectURL(file);
-    //     mediaPlayer.src = fileURL;
-    //     mediaPlayer.load();
-    //     if (autoplayCheckbox.checked) {
-    //     mediaPlayer.play();
-    //     }
-    
-    //     // Store the new Object URL for future cleanup
-    //     previousObjectURL = fileURL;
-    
-    //     // Hide dialog after selecting a file
-    //     dialogOverlay.style.display = 'none';
-    // });
     
 
     // Handle "Enter a URL" button
