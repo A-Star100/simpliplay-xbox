@@ -13,11 +13,12 @@ If you don't have VS Studio with the UWP toolkit installed, you can just downloa
 then rename its extension to a `.zip` and extract it.
 From there in the "WebAssets" folder, put any web code you have in (HTML, CSS, etc).
 Then you can compress the folder as a ZIP and rename it to `.appx`.
-Note that the Microsoft Partner Center **REQUIRES PACKAGES TO BE SELF-SIGNED**, even
+Note that the Microsoft Partner Center doesn't work when I zipped it up and uploaded it without any signage even
 if it's just for an upload before certification or something like that.
 If you lack a Windows machine at all, you can use GitHub Actions or some other CI
 to take your APPX and sign it and spit out the new version. Even if your signer says "Unknown Error"
-still try uploading it (it worked for me).
+still try uploading it (it worked for me). But for tools like Electron Builder for Windows APPXs, they
+actually build the APPX properly so you don't have to sign it (phew!)
 
 ## OLD instructions (optional because the app is signed now)
 ## How to sign the app (required or otherwise it won't install even in Dev Mode)
