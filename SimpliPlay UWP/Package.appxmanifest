@@ -9,7 +9,7 @@
   <Identity
     Name="AnirudhSevugan.simpliplay"
     Publisher="CN=980A5BA5-E457-4289-89D8-1E46A33B1D3E"
-    Version="1.1.1.0" />
+    Version="1.1.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="fb5de0c8-508b-4a30-8cea-7fcd7e832e56" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -46,6 +46,7 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer" />
   </Capabilities>
 
 </Package>
