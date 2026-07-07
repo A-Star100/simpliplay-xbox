@@ -1,5 +1,5 @@
 # simpliplay-xbox
-UWP app for Xbox, built on a Windows VM. This version does not properly support HLS and MPEG-DASH as of now, and is mostly stale other than necessary updates that prevent the app from breaking.
+UWP port of SimpliPlay to Xbox. This version does not properly support MPEG-DASH as of now (or addons for that matter), and is mostly stale other than necessary updates that prevent the app from breaking or to add essential features (like LAN access).
 
 [Get from Microsoft Store (Xbox only)](https://apps.microsoft.com/detail/9PN7LMPJFRW1)
 
