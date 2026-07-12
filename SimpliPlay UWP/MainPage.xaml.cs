@@ -14,12 +14,12 @@ namespace SimpliPlay
 
         private void LoadLocalHtml()
         {
-            // The correct URI for local content is a hardcoded, relative path.
-            // The ms-appx-web:// protocol automatically looks inside your app package.
-            // The path should be relative to the package root.
+            // the paths used are in the root of the project
+            // ms-appx-web:// uri is specific to webpages
+            // whereas ms-appx:// is a general uri for it
             var uri = new Uri("ms-appx-web:///WebAssets/index.html");
 
-            // Load the HTML file into the WebView
+            // go to html page
             MyWebView.Navigate(uri);
         }
 
